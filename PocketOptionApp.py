@@ -6,20 +6,23 @@ import pyautogui
 import numpy as np
 from queue import Queue
 import importlib
-from PocketOptionUI import PocketOptionUI
+# from PocketOptionUI import PocketOptionUI
 
 
 
 
-class PocketOption(PocketOptionUI):
+class PocketOption():
     def __init__(self):
-        super().__init__()
-        print(self.miss_bull_power)
+        # super().__init__(PocketOption)
+       
         self.bulls_power = Queue()
+        self.miss_bull_power=0
+        self.miss_rate=0
         self.rate_of_change=Queue()
         self.prev_bulls_power=None
         self.prev_rate_of_change=None
         self.thread_status=False
+        self.indicator_status=True
         # self.base_class = importlib.import_module('PocketOptionUI')
         # self.base_instance = self.base_class.PocketOptionUI()
 
@@ -77,8 +80,9 @@ class PocketOption(PocketOptionUI):
         index=0
         try:
             while self.thread_status:
-                bull=True
-                rate=True
+                print("hello")
+                bull_bool=True
+                rate_bool=True
                 screenshot = pyautogui.screenshot()
                 frame = np.array(screenshot)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -130,7 +134,7 @@ class PocketOption(PocketOptionUI):
 
                             
                             # np.savetxt("rate.txt",rate_matrix)
-                            rate=False
+                            rate_bool=False
                             print("first")
 
                             
@@ -152,13 +156,18 @@ class PocketOption(PocketOptionUI):
 
                             
                             # np.savetxt("rate.txt",rate_matrix)
-                            bull=False
+                            bull_bool=False
                             print("second")
-                if(bull==False):
-                    self.base_instance.miss_bull_power+=1
+                if(bull_bool==False):
+                    self.indicator_status=False
+                    self.miss_bull_power+=1
 
-                if(rate==False):
-                    self.base_instance.miss_rate+=1
+                if(rate_bool==False):
+                    self.indicator_status=False
+                    self.miss_rate+=1
+
+                # if(bull_bool==True and miss_rate==True):
+                #     self.indicator_status=True
 
                             
                             
@@ -192,8 +201,8 @@ class PocketOption(PocketOptionUI):
 
 
 
-if __name__ == "__main__":
-    # time.sleep(3)
-    PO=PocketOption()
-    PO.Main_App()
+# if __name__ == "__main__":
+#     # time.sleep(3)
+#     PO=PocketOption()
+#     PO.Main_App()
     

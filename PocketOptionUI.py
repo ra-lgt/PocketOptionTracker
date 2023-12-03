@@ -2,21 +2,35 @@ import customtkinter
 import tkinter as tk
 import os
 import configparser
-# from PocketOptionApp import PocketOption
+from PocketOptionApp import PocketOption
 import time
 from threading import Thread
+from PIL import Image, ImageTk
 
-class PocketOptionUI:
+
+
+
+class PocketOptionUI(PocketOption):
 	def __init__(self):
+		super().__init__()
+
+		
 		self.root = customtkinter.CTk(fg_color="#212121")
 		self.root.geometry("400x300")
 		self.root.title("Pocket Option Tracker")
 		self.config = configparser.ConfigParser()
-		self.miss_bull_power=0
-		self.miss_rate=0
+		# self.miss_bull_power=0
+		# self.miss_rate=0
 		# self.PO=PocketOption()
 		self.backend_thread=None
 		self.delete_frames=[]
+		self.Flag=True
+		self.custom_images={
+		'red':customtkinter.CTkImage(light_image=Image.open("./static/red.png"),size=(30, 30)),
+		'green':customtkinter.CTkImage(light_image=Image.open("./static/green.png"),size=(30, 30)),
+		}
+		
+		
 
 	def create_config_file(self):
 		if(os.path.isfile('./config.ini')):
@@ -41,26 +55,41 @@ class PocketOptionUI:
 		with open('config.ini', 'w') as config_file:
 			self.config.write(config_file)
 
-		self.Tracker_Page()
+		track_thread=Thread(target=self.Tracker_Page)
+		track_thread.start()
+
+		# self.Tracker_Page()
 
 	def backend_call(self):
-		PO=PocketOption()
-		PO.thread_status=True
-		self.backend_thread=Thread(target=PO.Main_App)
+		
+		
+		self.thread_status=True
+		self.backend_thread=Thread(target=self.Main_App)
 		self.backend_thread.start()
 
 	def stop_track(self):
-		PO=PocketOption()
-		PO.thread_status=False
+		
+		
+		self.thread_status=False
 
 	def start_track(self):
 		# self.info=customtkinter.CTkLabel(master=self.root, text="Hold ON! Tightly we're going to track",text_color="#E0E0E0",font=("Arial",15))
 		# self.info.place(relx=0.2,rely=0.9)
 		self.backend_call()
-		
 
-		
-		
+
+	def event_tracker(self):
+		prev_miss_bull=self.miss_bull_power
+		while True:
+			print("-")
+			
+			if(prev_miss_bull!=self.miss_bull_power):
+				self.Flag=False
+				print("**")
+				self.Tracker_Page()
+
+				prev_miss_bull=self.miss_bull_power
+
 		
 
 
@@ -70,6 +99,13 @@ class PocketOptionUI:
 		for i in self.delete_frames:
 			i.destroy()
 			i.pack_forget()
+
+		if self.Flag:
+
+			temp=Thread(target=self.event_tracker)
+			temp.start()
+
+		
 
 		tracker_frame=customtkinter.CTkFrame(master=self.root, width=400, height=400,fg_color="#212121")
 		tracker_frame.place(rely=0.2)
@@ -92,17 +128,30 @@ class PocketOptionUI:
 		miss_rate_count=customtkinter.CTkLabel(master=tracker_frame, text=self.miss_rate,text_color="#E0E0E0",font=("Arial",15))
 		miss_rate_count.grid(row=1,column=2,sticky=tk.E)
 
+		same_label=customtkinter.CTkLabel(master=tracker_frame, text="Same-Time",text_color="#E0E0E0",font=("Arial",15))
+		same_label.grid(row=2,column=0,sticky=tk.W)
+
+		# if(self.indicator_status==True):
+		# 	same = customtkinter.CTkLabel(tracker_frame,image=self.custom_images['green'],text="")
+		# 	same.grid(row=2,column=1,sticky=tk.E)
+		# else:
+		# 	same = customtkinter.CTkLabel(tracker_frame,image=self.custom_images['red'],text="")
+		# 	same.grid(row=2,column=1,sticky=tk.E)
+			
+		
+
+
+		
+
+
+
 		go_button=customtkinter.CTkButton(self.root, text="Track", command=lambda :self.start_track(),fg_color="#149C58")
 		go_button.place(relx=0.1,rely=0.8)
 
 		stop_button=customtkinter.CTkButton(self.root, text="Stop", command=lambda :self.stop_track(),fg_color="#94090D")
 		stop_button.place(relx=0.6,rely=0.8)
 
-
-
-
-
-
+		
 
 
 
@@ -160,5 +209,5 @@ class PocketOptionUI:
 
 
 
-# app=PocketOptionUI()
-# app.Main_UI_App()
+app=PocketOptionUI()
+app.Main_UI_App()
