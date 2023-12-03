@@ -6,6 +6,7 @@ from PocketOptionApp import PocketOption
 import time
 from threading import Thread
 from PIL import Image, ImageTk
+from ttkbootstrap.dialogs.dialogs import Messagebox
 
 
 
@@ -18,7 +19,7 @@ class PocketOptionUI(PocketOption):
 		self.root = customtkinter.CTk(fg_color="#212121")
 		self.root.geometry("400x300")
 		self.root.title("Pocket Option Tracker")
-		self.config = configparser.ConfigParser()
+		
 		# self.miss_bull_power=0
 		# self.miss_rate=0
 		# self.PO=PocketOption()
@@ -43,20 +44,21 @@ class PocketOptionUI(PocketOption):
 			with open('config.ini', 'w') as configfile:
 				self.config.write(configfile)
 
-	def fetch_data_from_config(self):
-		
-		self.config.read("config.ini")
-		return self.config['user-data']['Bull_Power_Line_Color'],self.config['user-data']['Rate_Of_Change_Line_Color']
-
+	
 	def save_config(self,bull_value,rate_value):
-		self.config['user-data']['bull_power_line_color']=bull_value.get()
-		self.config['user-data']['rate_of_change_line_color']=rate_value.get()
+		if(bull_value.get()=="None" or rate_value.get()=="None"):
+			Messagebox.show_error(message="Provide the two values")
+			self.Home_page()
+		else:
 
-		with open('config.ini', 'w') as config_file:
-			self.config.write(config_file)
+			self.config['user-data']['bull_power_line_color']=bull_value.get()
+			self.config['user-data']['rate_of_change_line_color']=rate_value.get()
 
-		track_thread=Thread(target=self.Tracker_Page)
-		track_thread.start()
+			with open('config.ini', 'w') as config_file:
+				self.config.write(config_file)
+
+			track_thread=Thread(target=self.Tracker_Page)
+			track_thread.start()
 
 		# self.Tracker_Page()
 
@@ -81,7 +83,7 @@ class PocketOptionUI(PocketOption):
 	def event_tracker(self):
 		prev_miss_bull=self.miss_bull_power
 		while True:
-			print("-")
+			print()
 			
 			if(prev_miss_bull!=self.miss_bull_power):
 				self.Flag=False
@@ -128,8 +130,8 @@ class PocketOptionUI(PocketOption):
 		miss_rate_count=customtkinter.CTkLabel(master=tracker_frame, text=self.miss_rate,text_color="#E0E0E0",font=("Arial",15))
 		miss_rate_count.grid(row=1,column=2,sticky=tk.E)
 
-		same_label=customtkinter.CTkLabel(master=tracker_frame, text="Same-Time",text_color="#E0E0E0",font=("Arial",15))
-		same_label.grid(row=2,column=0,sticky=tk.W)
+		# same_label=customtkinter.CTkLabel(master=tracker_frame, text="Same-Time",text_color="#E0E0E0",font=("Arial",15))
+		# same_label.grid(row=2,column=0,sticky=tk.W)
 
 		# if(self.indicator_status==True):
 		# 	same = customtkinter.CTkLabel(tracker_frame,image=self.custom_images['green'],text="")
@@ -182,7 +184,7 @@ class PocketOptionUI(PocketOption):
 		rate_power_label=customtkinter.CTkLabel(master=home_frame,text="Rate-Change Line color :",text_color="#E0E0E0",font=("Arial",15))
 		rate_power_label.grid(row=1,column=0,pady=10,sticky=tk.W)
 
-		rate_option = customtkinter.CTkOptionMenu(home_frame,dynamic_resizing=False,values=["Light Green", "Blue","Pink","Orange","Red","Yellow"],width=120,fg_color="#0D9488",button_color="#0D9488",dropdown_hover_color="#0D9488")
+		rate_option = customtkinter.CTkOptionMenu(home_frame,dynamic_resizing=False,values=["LightGreen", "Blue","Pink","Orange","Red","Yellow"],width=120,fg_color="#0D9488",button_color="#0D9488",dropdown_hover_color="#0D9488")
 		rate_option.set(rate_of_change_line_color)
 		rate_option.grid(row=1,column=1,padx=5,pady=10,sticky=tk.E)
 
